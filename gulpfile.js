@@ -4,6 +4,7 @@
 
 // Gulp Dependencies
 var gulp = require('gulp');
+var debug = require('gulp-debug');
 var rename = require('gulp-rename');
 var plumber = require('gulp-plumber');
 var browserSync = require('browser-sync').create();
@@ -49,10 +50,9 @@ gulp.task('browserify-client', ['lint-client'], function() {
     .pipe(browserify({
       insertGlobals: true
     }))
-    .pipe(rename('car-finder.js'))
+    .pipe(rename('test-project.js'))
     .pipe(gulp.dest('build'))
-    .pipe(gulp.dest('public/javascripts'))
-    .on('change', browserSync.reload); 
+    .pipe(gulp.dest('public/javascripts'));
 });
 
 gulp.task('browserify-test', ['lint-test'], function() {
@@ -76,36 +76,43 @@ gulp.task('styles', function() {
 //    .pipe(plumber())
     .pipe(less())
     .pipe(prefix({ cascade: true }))
-    .pipe(rename('car-finder.css'))
+    .pipe(rename('test-project.css'))
     .pipe(gulp.dest('build'))
     .pipe(gulp.dest('public/stylesheets'));
 });
 
 gulp.task('minify', ['styles'], function() {
-  return gulp.src('build/car-finder.css')
+  return gulp.src('build/test-project.css')
     .pipe(minifyCSS())
-    .pipe(rename('car-finder.min.css'))
+    .pipe(rename('test-project.min.css'))
     .pipe(gulp.dest('public/stylesheets'))
     .on('change', browserSync.reload); 
 });
 
 gulp.task('uglify', ['browserify-client'], function() {
-  return gulp.src('build/car-finder.js')
+  return gulp.src('build/test-project.js')
     .pipe(uglify())
-    .pipe(rename('car-finder.min.js'))
+    .pipe(rename('test-project.min.js'))
     .pipe(gulp.dest('public/javascripts'))
     .on('change', browserSync.reload); ;
 });
 
 gulp.task('build', ['uglify', 'minify']);
 
-gulp.task('watch', function() {
-  browserSync.init({server:'./public/'});
-  gulp.watch('client/**/*.js', ['browserify-client', 'test']);
-  gulp.watch('test/client/**/*.js', ['test']);
-  gulp.watch('client/**/*.less', ['minify']);
-
+gulp.task('serve', function() {
+    browserSync.init({
+        server: {
+            baseDir: 'public'
+        }
+    });
 });
 
+gulp.task('watch', ['serve'], function() {
+  // browserSync.init({server:'./public/'});
+  gulp.watch('client/**/*.js', ['browserify-client', 'test', browserSync.reload]);
+  gulp.watch('test/client/**/*.js', ['test', browserSync.reload]);
+  gulp.watch('client/**/*.less', ['minify'], browserSync.reload);
+
+});
 
 gulp.task('default', ['test', 'build', 'watch']);

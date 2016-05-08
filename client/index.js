@@ -1,12 +1,10 @@
 var $ = require('jquery');
-var Backbone = require('backbone');
-var Marionette = require('backbone.marionette');
-var Radio = require('backbone.radio');
 
-// app bootstrap
-var app = new Marionette.Application();
+console.log('hello2');
 
-app.start();
-module.exports = app;
+$(document).ready(function () {
 
-console.log('hello');
+    $('body').append('<h3>Boink</h3>');
+    $('body').append('<h4>Boink</h4>');
+
+});
